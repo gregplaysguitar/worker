@@ -34,17 +34,15 @@ begin
       values(
         identifier,
         payload,
-        coalesce(queue_name, public.gen_random_uuid()::text),
+        queue_name,
         run_at,
         max_attempts,
         job_key
       )
       on conflict (key) do update set
-        -- update all job details other than queue_name, which we want to keep
-        -- the same unless explicitly provided
         task_identifier=excluded.task_identifier,
         payload=excluded.payload,
-        queue_name=coalesce(add_job.queue_name, jobs.queue_name),
+        queue_name=excluded.queue_name,
         max_attempts=excluded.max_attempts,
         run_at=excluded.run_at,
 
@@ -75,7 +73,7 @@ begin
     values(
       identifier,
       payload,
-      coalesce(queue_name, public.gen_random_uuid()::text),
+      queue_name,
       run_at,
       max_attempts,
       job_key
